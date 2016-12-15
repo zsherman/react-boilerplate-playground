@@ -44,7 +44,6 @@ export function* loginRequest(action) {
     return new Promise((resolve, reject) => {
 
       // Bring up the login form
-      console.log('show')
       lock.show();
 
       // When authentication succeeds return the token
@@ -54,8 +53,8 @@ export function* loginRequest(action) {
         lock.getUserInfo(authResult.accessToken, (error, profile) => {
           if (!error) {
             setStoredAuthState(authResult.idToken, profile);
-            lock.hide();
             resolve({ user: Immutable.fromJS(profile), idToken: authResult.idToken });
+            lock.hide();
           }
         });
       });
@@ -85,7 +84,7 @@ export function* loginRequestWatcher() {
   yield fork(takeLatest, LOGIN_REQUEST, loginRequest);
 }
 
-export function* loginRequestData() {
+export function* loginRequestFlow() {
   const watcher = yield fork(loginRequestWatcher);
   yield take(LOCATION_CHANGE);
   yield cancel(watcher);
@@ -93,9 +92,7 @@ export function* loginRequestData() {
 
 // Logout button was clicked
 export function* logoutRequest(action) {
-  console.log(action)
   try {
-    console.log('logout');
     // Remove jwt token and user from local storage
     removeStoredAuthState();
 
@@ -109,18 +106,12 @@ export function* logoutRequest(action) {
   }
 }
 
-export function* logoutRequestWatcher() {
-  console.log('watch logout')
+export function* logoutRequestFlow() {
   yield fork(takeLatest, LOGOUT_REQUEST, logoutRequest);
-}
-
-export function* logoutRequestData() {
-  console.log('watchman')
-  const watcher = yield fork(logoutRequestWatcher);
 }
 
 // All sagas to be loaded
 export default [
-  loginRequestData,
-  logoutRequestData
+  loginRequestFlow,
+  logoutRequestFlow
 ];
