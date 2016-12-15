@@ -75,6 +75,6 @@ export function getStoredAuthState() {
   } catch (err) {
     // If we can't get the token/user, clear it
     removeStoredAuthState();
-    return {};
+    return Immutable.fromJS({});
   }
 };

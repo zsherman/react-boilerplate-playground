@@ -4,6 +4,9 @@
 // about the code splitting business
 import { getAsyncInjectors } from 'utils/asyncInjectors';
 
+// Bring in the auth sagas since they're needed everywhere
+import authSagas from 'containers/AuthPage/sagas';
+
 // Ensure user is logged in, otherwise redirect
 import { requireAuth } from 'utils/auth';
 
@@ -19,25 +22,11 @@ export default function createRoutes(store) {
   // Create reusable async injectors using getAsyncInjectors factory
   const { injectReducer, injectSagas } = getAsyncInjectors(store); // eslint-disable-line no-unused-vars
 
+  // Ensure the auth sagas are loaded on every page
+  injectSagas(authSagas);
+
   return [
     {
-      path: '/',
-      name: 'home',
-      onEnter: requireAuth,
-      getComponent(nextState, cb) {
-        const importModules = Promise.all([
-          System.import('containers/HomePage'),
-        ]);
-
-        const renderRoute = loadModule(cb);
-
-        importModules.then(([component]) => {
-          renderRoute(component);
-        });
-
-        importModules.catch(errorLoading);
-      },
-    }, {
       path: '/auth',
       name: 'auth',
       getComponent(nextState, cb) {
@@ -51,6 +40,27 @@ export default function createRoutes(store) {
 
         importModules.then(([reducer, sagas, component]) => {
           injectReducer('auth', reducer.default);
+          injectSagas(sagas.default);
+          renderRoute(component);
+        });
+
+        importModules.catch(errorLoading);
+      },
+    }, {
+      path: '/',
+      name: 'organizationsPage',
+      onEnter: requireAuth,
+      getComponent(nextState, cb) {
+        const importModules = Promise.all([
+          System.import('containers/OrganizationsPage/reducer'),
+          System.import('containers/OrganizationsPage/sagas'),
+          System.import('containers/OrganizationsPage'),
+        ]);
+
+        const renderRoute = loadModule(cb);
+
+        importModules.then(([reducer, sagas, component]) => {
+          injectReducer('organizationsPage', reducer.default);
           injectSagas(sagas.default);
           renderRoute(component);
         });

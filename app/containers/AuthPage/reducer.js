@@ -4,7 +4,7 @@
  *
  */
 
-import { fromJS } from 'immutable';
+import { fromJS, Map } from 'immutable';
 import { getStoredAuthState } from 'utils/auth';
 import {
   LOGIN_REQUEST,
@@ -36,7 +36,7 @@ function authReducer(state = initialState.merge(getStoredAuthState()), action) {
       return state.set('loggingOut', true);
 
     case LOGOUT_SUCCESS:
-      return state.set('user', {});
+      return state.set('user', new Map());
 
     default:
       return state;

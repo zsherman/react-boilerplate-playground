@@ -45,7 +45,6 @@ export function injectAsyncReducer(store, isValid) {
  */
 export function injectAsyncSagas(store, isValid) {
   return function injectSagas(sagas) {
-    console.log(sagas);
     if (!isValid) checkStore(store);
 
     invariant(
@@ -57,8 +56,6 @@ export function injectAsyncSagas(store, isValid) {
       !isEmpty(sagas),
       '(app/utils...) injectAsyncSagas: Received an empty `sagas` array'
     );
-
-    console.log(sagas)
 
     sagas.map(store.runSaga);
   };

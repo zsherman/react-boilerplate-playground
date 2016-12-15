@@ -38,7 +38,6 @@ export function onLoginFailure(error) {
 }
 
 export function onLogoutRequest() {
-  console.log('logout request');
   return {
     type: LOGOUT_REQUEST
   };

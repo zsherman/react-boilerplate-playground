@@ -39,9 +39,13 @@ export function* loginRequest(action) {
     }
   );
 
-
+  // Returns a promise with the auth information
   const showLock = () => {
     return new Promise((resolve, reject) => {
+
+      // Bring up the login form
+      console.log('show')
+      lock.show();
 
       // When authentication succeeds return the token
       lock.on('authenticated', (authResult) => {
@@ -50,6 +54,7 @@ export function* loginRequest(action) {
         lock.getUserInfo(authResult.accessToken, (error, profile) => {
           if (!error) {
             setStoredAuthState(authResult.idToken, profile);
+            lock.hide();
             resolve({ user: Immutable.fromJS(profile), idToken: authResult.idToken });
           }
         });
@@ -60,17 +65,12 @@ export function* loginRequest(action) {
         reject(error);
       });
 
-      // Bring up the login form
-      lock.show();
     });
   }
 
   try {
     // Grab authentication info
     const { user, idToken } = yield call(showLock);
-
-    // Hide the login form
-    lock.hide();
 
     // Store user info and redirect to requested page
     yield put(onLoginSuccess(user));
@@ -117,8 +117,6 @@ export function* logoutRequestWatcher() {
 export function* logoutRequestData() {
   console.log('watchman')
   const watcher = yield fork(logoutRequestWatcher);
-  yield take(LOCATION_CHANGE);
-  yield cancel(watcher);
 }
 
 // All sagas to be loaded

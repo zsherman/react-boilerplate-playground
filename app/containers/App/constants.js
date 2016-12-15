@@ -10,3 +10,6 @@
  */
 
 export const DEFAULT_LOCALE = 'en';
+
+export const SET_LOADING_STATE  = 'App/SET_LOADING_STATE';
+export const SET_ERROR_STATE    = 'App/SET_ERROR_STATE';

@@ -29,12 +29,17 @@ export class App extends React.PureComponent { // eslint-disable-line react/pref
   };
 
   render() {
+    console.log(this.props.user)
     return (
       <div>
-        {this.props.user && <Navigation
-          user={this.props.user}
-          handleLogout={this.props.actions.handleLogout}
-        />}
+        {
+          this.props.location.pathname !== "/auth" &&
+          !this.props.user.isEmpty() &&
+          <Navigation
+            user={this.props.user}
+            handleLogout={this.props.actions.handleLogout}
+          />
+        }
         {React.Children.toArray(this.props.children)}
       </div>
     );
