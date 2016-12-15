@@ -1,4 +1,5 @@
 // Global deps
+import request from 'utils/request';
 import Immutable from 'immutable';
 import { takeLatest } from 'redux-saga';
 import { take, call, put, select, fork, cancel } from 'redux-saga/effects';
@@ -8,7 +9,11 @@ import Auth0Lock from 'auth0-lock';
 // Local deps
 import { AUTH0_CLIENT_ID, AUTH0_DOMAIN } from 'environment';
 import { setStoredAuthState, removeStoredAuthState } from 'utils/auth';
-import { LOGIN_REQUEST, LOGOUT_REQUEST } from './constants';
+import {
+  LOGIN_REQUEST,
+  LOGOUT_REQUEST,
+  IMPERSONATE_REQUEST
+} from './constants';
 import { selectCurrentUser } from './selectors';
 
 // Authentication actions
@@ -84,7 +89,7 @@ export function* loginRequestWatcher() {
   yield fork(takeLatest, LOGIN_REQUEST, loginRequest);
 }
 
-export function* loginRequestFlow() {
+export function* loginFlow() {
   const watcher = yield fork(loginRequestWatcher);
   yield take(LOCATION_CHANGE);
   yield cancel(watcher);
@@ -106,12 +111,37 @@ export function* logoutRequest(action) {
   }
 }
 
-export function* logoutRequestFlow() {
+export function* logoutWatcher() {
   yield fork(takeLatest, LOGOUT_REQUEST, logoutRequest);
+}
+
+export function* impersonateRequest({access_token, id_token}) {
+  const requestURL = `https://${AUTH0_DOMAIN}/userinfo`;
+  const requestOptions = {
+    method: 'GET',
+    headers: {
+      "Authorization": `Bearer ${access_token}`,
+      "Content-Type": "application/json"
+    },
+    mode: 'cors',
+    cache: 'default'
+  }
+
+  try {
+    const response = yield call(request, requestURL, requestOptions);
+    console.log(response);
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+export function* impersonateWatcher() {
+  yield(takeLatest, IMPERSONATE_REQUEST, impersonateRequest);
 }
 
 // All sagas to be loaded
 export default [
-  loginRequestFlow,
-  logoutRequestFlow
+  loginFlow,
+  logoutWatcher,
+  impersonateWatcher
 ];

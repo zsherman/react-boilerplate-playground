@@ -27,6 +27,7 @@ export class Auth extends React.Component { // eslint-disable-line react/prefer-
     if (R.isEmpty(query)) {
       this.props.actions.onLoginRequest(nextPathname);
     } else {
+      console.log(query);
       this.props.actions.onImpersonate(query);
     }
   }
